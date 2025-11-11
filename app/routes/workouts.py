@@ -1,73 +1,44 @@
-from fastapi import APIRouter
+from fastapi import APIRouter, Request, Response
 
 router = APIRouter(
-    prefix="/treinos",
-    tags=["treinos"],
+    prefix="/workouts",
+    tags=["workouts"],
 )
 
-mock_treinos = [
-    {
-        "id_treino": 1,
-        "id_aluno": 1,
-        "id_instrutor": 1,
-        "dt_inicio": "2024-01-10",
-        "dt_fim": "2024-04-10",
-        "objetivo": "Ganho de massa muscular",
-        "exercicios": [
-            {
-                "id_exercicio": 1,
-                "nome": "Supino Reto",
-                "grupo_muscular": "PEITO",
-                "series": 4,
-                "repeticoes": 10,
-                "carga": 60.0
-            },
-            {
-                "id_exercicio": 2,
-                "nome": "Agachamento",
-                "grupo_muscular": "PERNA",
-                "series": 4,
-                "repeticoes": 12,
-                "carga": 80.0
-            }
-        ]
-    },
-    {
-        "id_treino": 2,
-        "id_aluno": 2,
-        "id_instrutor": 2,
-        "dt_inicio": "2024-02-15",
-        "dt_fim": "2024-05-15",
-        "objetivo": "Perda de peso",
-        "exercicios": [
-            {
-                "id_exercicio": 3,
-                "nome": "Corrida na esteira",
-                "grupo_muscular": "CARDIO",
-                "series": 1,
-                "reps": 30,
-                "carga_kg": None
-            },
-            {
-                "id_exercicio": 4,
-                "nome": "Abdominal",
-                "grupo_muscular": "ABDOME",
-                "series": 3,
-                "reps": 20,
-                "carga_kg": None
-            }
-        ]
-    }
-]
-
 @router.get("/")
-async def get_treinos():
-    return mock_treinos
+async def get_workouts(request: Request):
+    service = request.app.state.workout_service
+    try:
+        workouts = service.get_workouts()
+    except Exception as e:
+        return Response(content=str(e), status_code=500)
+    return workouts
 
 @router.post("/")
-async def create_treino(treino: dict):
-    pass
+async def create_workout(request: Request, workout_data: dict):
+    service = request.app.state.workout_service
+    try:
+        new_workout = service.create_workout(workout_data)
+    except Exception as e:
+        return Response(content=str(e), status_code=500)
+    return new_workout
 
-@router.get("/{treino_id}")
-async def get_treino(treino_id: int):
-    pass
+@router.get("/{workout_id}")
+async def get_workout(request: Request, workout_id: int):
+    service = request.app.state.workout_service
+    try:
+        workout = service.get_workout_by_id(workout_id)
+        if workout is None:
+            return {"error": "Workout not found"}
+    except Exception as e:
+        return Response(content=str(e), status_code=500)
+    return workout
+
+@router.get("/member/{member_id}")
+async def get_workouts_by_member(request: Request, member_id: int):
+    service = request.app.state.workout_service
+    try:
+        workouts = service.get_workouts_by_member(member_id)
+    except Exception as e:
+        return Response(content=str(e), status_code=500)
+    return workouts

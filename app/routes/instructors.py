@@ -1,33 +1,35 @@
-from fastapi import APIRouter
+from fastapi import APIRouter, Request, Response
 
 router = APIRouter(
-    prefix="/instrutores",
-    tags=["instrutores"],
+    prefix="/instructors",
+    tags=["instructors"],
 )
 
-mock_instructors = [
-    {
-        "instructor_id": 1,
-        "name": "Lucas Almeida",
-        "email": "lucas.almeida@example.com",
-        "cref": "CREF123456"
-    },
-    {
-        "instructor_id": 2,
-        "name": "Mariana Gomes",
-        "email": "mariana.gomes@example.com",
-        "cref": "CREF234567"
-    },
-]
-
 @router.get("/")
-async def get_instrutores():
-    return mock_instructors
+async def get_instrutores(request: Request):
+    service = request.app.state.instructor_service
+    try:
+        instructors = service.get_instructors()
+    except Exception as e:
+        return Response(content=str(e), status_code=500)
+    return instructors
 
 @router.post("/")
-async def create_instructor(instructor: dict):
-    pass
+async def create_instructor(request: Request, instructor: dict):
+    service = request.app.state.instructor_service
+    try:
+        new_instructor = service.create_instructor(instructor)
+    except Exception as e:
+        return Response(content=str(e), status_code=500)
+    return new_instructor
 
 @router.get("/{instructor_id}")
-async def get_instructor(instructor_id: int):
-    pass
+async def get_instructor(request: Request, instructor_id: int):
+    service = request.app.state.instructor_service
+    try:
+        instructor = service.get_instructor_by_id(instructor_id)
+        if instructor is None:
+            return {"error": "Instructor not found"}
+    except Exception as e:
+        return Response(content=str(e), status_code=500)
+    return instructor
