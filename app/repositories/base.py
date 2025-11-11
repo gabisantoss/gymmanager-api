@@ -18,7 +18,7 @@ class BaseRepository(Generic[T]):
     def get(self, id_: int) -> Optional[T]:
         return self.db.get(self.model, id_)
 
-    def list(self, skip: int = 0, limit: int = 50) -> Iterable[T]:
+    def list(self, skip: int = 0, limit: int = 50) -> list[T]:
         return (
             self.db.query(self.model)
             .offset(skip)

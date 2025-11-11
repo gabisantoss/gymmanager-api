@@ -1,5 +1,6 @@
 from .conn import Base
 from sqlalchemy.orm import Mapped, mapped_column
+from sqlalchemy import Enum as SQLEnum
 import enum
 
 class StatusAssinatura(enum.Enum):
@@ -56,7 +57,7 @@ class Assinatura(Base):
     dt_inicio: Mapped[str] = mapped_column(nullable=False)
     dt_fim: Mapped[str] = mapped_column(nullable=False)
     status: Mapped[StatusAssinatura] = mapped_column(
-        enum.Enum(StatusAssinatura), nullable=False
+        SQLEnum(StatusAssinatura, native_enum=False), nullable=False
     )
 
 class Pagamento(Base):
@@ -67,7 +68,7 @@ class Pagamento(Base):
     valor: Mapped[float] = mapped_column(nullable=False)
     dt_pagamento: Mapped[str] = mapped_column(nullable=False)
     forma: Mapped[FormaPagamento] = mapped_column(
-        enum.Enum(FormaPagamento), nullable=False
+        SQLEnum(FormaPagamento, native_enum=False), nullable=False
     )
 
 class Treino(Base):
@@ -86,7 +87,7 @@ class Exercicio(Base):
     id_exercicio: Mapped[int] = mapped_column(primary_key=True, index=True)
     nome: Mapped[str] = mapped_column(nullable=False)
     grupo_muscular: Mapped[GrupoMuscular] = mapped_column(
-        enum.Enum(GrupoMuscular), nullable=False
+        SQLEnum(GrupoMuscular, native_enum=False), nullable=False
     )
 
 class TreinoExercicio(Base):
